@@ -1,4 +1,4 @@
-# 🍽️ ChatBite - Transform ingredients into authentic Indian recipes, instantly
+# 🍽️ ChatBite - Ingredient-First AI Recipes
 
 <div align="center">
   <img src="static/logo.svg" alt="ChatBite Logo" width="120"> <br/><br/>
