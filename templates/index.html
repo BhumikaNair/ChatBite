@@ -4,6 +4,39 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>ChatBite</title>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ request.url }}" />
+    <meta
+      property="og:title"
+      content="ChatBite - Ingredient-first recipes, powered by AI"
+    />
+    <meta
+      property="og:description"
+      content="Share your ingredients and ChatBite will create delicious, authentic Indian recipes tailored just for you. From North Indian to South Indian cuisine."
+    />
+    <meta
+      property="og:image"
+      content="{{ url_for('static', filename='og-image.png', _external=True) }}"
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="{{ request.url }}" />
+    <meta
+      property="twitter:title"
+      content="ChatBite - Ingredient-first recipes, powered by AI"
+    />
+    <meta
+      property="twitter:description"
+      content="Share your ingredients and ChatBite will create delicious, authentic Indian recipes tailored just for you. From North Indian to South Indian cuisine."
+    />
+    <meta
+      property="twitter:image"
+      content="{{ url_for('static', filename='og-image.png', _external=True) }}"
+    />
+
     <link
       rel="icon"
       type="image/svg+xml"
