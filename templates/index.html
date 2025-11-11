@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ChatBite | Ingredient-First AI Recipes</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="{{ url_for('static', filename='logo.svg') }}"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      window.tailwind = window.tailwind || {};
+      window.tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                500: "#f97316",
+                600: "#ea580c",
+              },
+            },
+            boxShadow: {
+              soft: "0 18px 40px -22px rgba(15, 23, 42, 0.25)",
+            },
+          },
+        },
+      };
+    </script>
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+      defer
+    ></script>
+    <script src="{{ url_for('static', filename='js/chat.js') }}" defer></script>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div class="mx-auto flex min-h-screen max-w-5xl flex-col px-6 py-10">
+      <header class="flex w-full items-center justify-center">
+        <div class="text-center">
+          <div
+            class="mx-auto mb-3 h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center"
+          >
+            <img
+              src="{{ url_for('static', filename='logo.svg') }}"
+              alt="ChatBite logo"
+              class="h-7 w-7"
+            />
+          </div>
+          <h1 class="text-2xl font-semibold text-slate-900">ChatBite</h1>
+          <p class="mt-1 text-sm text-slate-500">
+            Ingredient-first recipes, powered by AI
+          </p>
+        </div>
+      </header>
+
+      <main class="mt-12 flex-1 space-y-10">
+        <section class="grid gap-6 lg:grid-cols-[2fr_1fr]">
+          <div
+            class="flex h-[42rem] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft"
+          >
+            <div
+              class="flex items-center justify-between border-b border-slate-200 px-6 py-4"
+            >
+              <div>
+                <p class="text-sm font-semibold text-slate-900">
+                  Recipe workspace
+                </p>
+                <p class="text-xs text-slate-500">
+                  Share ingredients. ChatBite handles the rest.
+                </p>
+              </div>
+              <span
+                class="inline-flex items-center gap-2 text-xs text-slate-400"
+              >
+                <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                Live
+              </span>
+            </div>
+
+            <div
+              id="chatLog"
+              class="flex-1 space-y-4 overflow-y-auto px-6 py-6"
+            >
+              <div class="message assistant">
+                <div class="message-meta">ChatBite</div>
+                <div class="message-bubble">
+                  Ready when you are! Drop a few ingredients or leftovers and
+                  I’ll sketch out a polished plan for tonight’s meal.
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-200 bg-slate-50/60 px-6 py-5">
+              <form id="chatForm" class="space-y-3">
+                <label class="input-label" for="messageInput">
+                  Ingredients on hand
+                </label>
+                <textarea
+                  id="messageInput"
+                  class="h-24 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                  placeholder="Example: chicken thighs, lemon, Greek yogurt, smoked paprika"
+                  required
+                ></textarea>
+
+                <div class="flex justify-end">
+                  <button
+                    id="submitButton"
+                    type="submit"
+                    title="Send message"
+                    aria-label="Send message"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-500 px-5 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/40 sm:w-auto"
+                  >
+                    <span class="text-slate-500">Send</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <aside class="flex h-[42rem] flex-col gap-6">
+            <section
+              class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+            >
+              <h2 class="text-base font-semibold text-slate-900">
+                Quick ingredient ideas
+              </h2>
+              <div class="mt-4 flex flex-wrap gap-3">
+                <button
+                  class="suggestion-chip"
+                  data-suggestion="turmeric, mustard seeds, curry leaves, coconut milk, red chilli"
+                >
+                  South Indian Coconut Curry
+                </button>
+                <button
+                  class="suggestion-chip"
+                  data-suggestion="chana (chickpeas), onions, tomatoes, cumin, coriander, amchur"
+                >
+                  Chana Masala-style Bowl
+                </button>
+                <button
+                  class="suggestion-chip"
+                  data-suggestion="potatoes, peas, turmeric, cumin, garam masala"
+                >
+                  Aloo Matar Quick Stir-fry
+                </button>
+              </div>
+            </section>
+
+            <section
+              class="flex-1 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+            >
+              <h2 class="text-base font-semibold text-slate-900">
+                Set the vibe
+              </h2>
+              <p class="mt-2 text-sm text-slate-500">
+                Dial in the style before sharing your ingredients.
+              </p>
+              <div class="mt-4 space-y-4">
+                <label class="input-label" for="mealType">
+                  Meal vibe
+                  <select id="mealType" class="input-select" form="chatForm">
+                    <option value="">Surprise me</option>
+                    <option value="Breakfast">Breakfast boost</option>
+                    <option value="Lunch">Midday recharge</option>
+                    <option value="Dinner">Dinner unwind</option>
+                    <option value="Snack">Snack attack</option>
+                    <option value="Dessert">Sweet treat</option>
+                  </select>
+                </label>
+                <label class="input-label" for="dietaryPreference">
+                  Dietary notes
+                  <select
+                    id="dietaryPreference"
+                    class="input-select"
+                    form="chatForm"
+                  >
+                    <option value="None">None</option>
+                    <option value="Vegetarian">Vegetarian</option>
+                    <option value="Vegan">Vegan</option>
+                    <option value="Gluten-free">Gluten-free</option>
+                    <option value="Dairy-free">Dairy-free</option>
+                    <option value="Pescatarian">Pescatarian</option>
+                    <option value="Keto">Keto friendly</option>
+                  </select>
+                </label>
+                <label class="input-label" for="skillLevel">
+                  Kitchen confidence
+                  <select id="skillLevel" class="input-select" form="chatForm">
+                    <option value="Confident">Seasoned</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Beginner">New to the kitchen</option>
+                  </select>
+                </label>
+              </div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <button
+                  id="clearButton"
+                  type="button"
+                  class="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
+                >
+                  Clear chat
+                </button>
+                <button
+                  id="downloadButton"
+                  type="button"
+                  class="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-500 transition hover:border-slate-300 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                  disabled
+                >
+                  Save last recipe
+                </button>
+              </div>
+            </section>
+          </aside>
+        </section>
+      </main>
+
+      <div
+        id="toast"
+        class="pointer-events-none fixed inset-x-0 top-5 z-50 flex justify-center px-4 opacity-0 transition-opacity"
+      ></div>
+    </div>
+  </body>
+</html>
