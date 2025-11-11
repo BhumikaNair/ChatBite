@@ -1,4 +1,4 @@
-# 🍽️ ChatBite - Transform ingredients into authentic Indian recipes, instantly
+# 🍽️ ChatBite - Transform ingredients into recipes
 
 <div align="center">
   <img src="static/logo.svg" alt="ChatBite Logo" width="120"> <br/><br/>
@@ -129,3 +129,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Made by [Bhumika Nair](https://github.com/BhumikaNair)
 
 </div>
+
