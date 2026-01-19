@@ -5,7 +5,8 @@ import os
 from datetime import datetime
 from typing import Any, Dict, List
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
 
@@ -24,18 +25,14 @@ if not api_key:
         "GEMINI_API_KEY (or GOOGLE_API_KEY / API_KEY) is not set. Provide a Gemini API key in your environment."
     )
 
-genai.configure(api_key=api_key)
+client = genai.Client(api_key=api_key)
 
-MODEL_NAME = "gemini-2.0-flash"
+MODEL_NAME = "gemini-2.5-flash-lite"
 
-generation_config = genai.GenerationConfig(
+generation_config = types.GenerateContentConfig(
     temperature=0.5,
     top_p=0.9,
     max_output_tokens=700,
-)
-
-model = genai.GenerativeModel(
-    model_name=MODEL_NAME, generation_config=generation_config
 )
 
 SYSTEM_PROMPT = (
@@ -97,21 +94,28 @@ def chat() -> Any:
         "Politely steer back to cooking if the user strays into other topics."
     )
 
-    contents: List[Dict[str, Any]] = [
-        {"role": "user", "parts": [{"text": " ".join(guidance_parts)}]}
-    ]
+    contents: List[types.Content] = []
+
+    # Add system instruction as first user message
+    contents.append(
+        types.Content(role="user", parts=[types.Part(text=" ".join(guidance_parts))])
+    )
 
     for turn in history:
         role = turn.get("role")
         content = (turn.get("content") or "").strip()
         if role in {"user", "assistant"} and content:
             mapped_role = "user" if role == "user" else "model"
-            contents.append({"role": mapped_role, "parts": [{"text": content}]})
+            contents.append(
+                types.Content(role=mapped_role, parts=[types.Part(text=content)])
+            )
 
-    contents.append({"role": "user", "parts": [{"text": user_message}]})
+    contents.append(types.Content(role="user", parts=[types.Part(text=user_message)]))
 
     try:
-        response = model.generate_content(contents)
+        response = client.models.generate_content(
+            model=MODEL_NAME, contents=contents, config=generation_config
+        )
     except Exception as exc:
         logger.exception("Chat completion failed: %s", exc)
         return (
@@ -122,17 +126,22 @@ def chat() -> Any:
             ),
             502,
         )
-    reply = (getattr(response, "text", "") or "").strip()
-    if not reply:
-        for candidate in getattr(response, "candidates", []) or []:
-            content = getattr(candidate, "content", None)
-            parts = getattr(content, "parts", None) if content else None
-            if not parts:
-                continue
-            part_texts = [getattr(part, "text", "") for part in parts]
-            reply = "\n".join(filter(None, part_texts)).strip()
-            if reply:
-                break
+
+    reply = ""
+    if response.text:
+        reply = response.text.strip()
+
+    if not reply and response.candidates:
+        for candidate in response.candidates:
+            if candidate.content and candidate.content.parts:
+                part_texts = [
+                    part.text
+                    for part in candidate.content.parts
+                    if hasattr(part, "text") and part.text
+                ]
+                reply = "\n".join(part_texts).strip()
+                if reply:
+                    break
 
     if not reply:
         logger.warning("Gemini returned an empty response: %s", response)
